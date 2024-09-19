@@ -20,22 +20,22 @@ model User {
 model Store {
   id        Int        @id @default(autoincrement())
   name      String
-  author    User       @relation(fields: [authorId], references: [id])
-  authorId  Int
+  owner     User       @relation(fields: [ownerId], references: [id])
+  ownerId   Int
   items     Item[]     @relation("StoreItems")
   favorites Favorite[]
 }
 
 model Item {
-  id       Int    @id @default(autoincrement())
-  name     String
-  author   Store  @relation(fields: [authorId], references: [id], name: "StoreItems")
-  authorId Int
+  id      Int    @id @default(autoincrement())
+  name    String
+  owner   Store  @relation(fields: [ownerId], references: [id], name: "StoreItems")
+  ownerId Int
 }
 
 model Favorite {
-  id       Int    @id @default(autoincrement())
-  name     String
-  author   Store  @relation(fields: [authorId], references: [id])
-  authorId Int
+  id      Int    @id @default(autoincrement())
+  name    String
+  owner   Store  @relation(fields: [ownerId], references: [id])
+  ownerId Int
 }
