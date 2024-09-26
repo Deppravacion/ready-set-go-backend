@@ -7,6 +7,6 @@ import { prisma } from "../prisma/db.setup";
 
 const saltRounds = 11;
 
-export const hashPassword = (password: string) => {
+export const encryptPassword = (password: string) => {
   return bcrypt.hash(password, saltRounds);
 };
