@@ -3,10 +3,14 @@ import { prisma } from "./db.setup";
 
 const clearDb = async () => {
   // await prisma.dog.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.store.deleteMany();
-  await prisma.item.deleteMany();
   await prisma.favorite.deleteMany();
+  console.log("deleted favorites");
+  await prisma.item.deleteMany();
+  console.log("deleted item");
+  await prisma.store.deleteMany();
+  console.log("deleted store");
+  await prisma.user.deleteMany();
+  console.log("deleted user");
 };
 
 const seed = async () => {
@@ -32,7 +36,7 @@ const seed = async () => {
   const garageFridge = await prisma.store.create({
     data: {
       name: "Garage-Fridge",
-      owner: {
+      user: {
         connect: { id: jon.id },
       },
     },
@@ -41,8 +45,31 @@ const seed = async () => {
   //create item for garage-fridge
   const coldBeer = await prisma.item.create({
     data: {
-      name: "Coors- Banquet",
-      ownerId: garageFridge.id,
+      name: "Coors-Banquet",
+      storeId: garageFridge.id,
+      image: "default-image.jpg",
+      description: "A refreshing beer",
+      quantity: 30,
+      minQuantity: 8,
+    },
+  });
+  console.log("crated garage fridge: id", garageFridge.id);
+  console.log("created beer, store Id: ", coldBeer.storeId);
+  console.log("created beer, beer ID: ", coldBeer.id);
+  const sparklingWater = await prisma.item.create({
+    data: {
+      name: "Topo Chico",
+      storeId: garageFridge.id,
+      image: "default-image.jpg",
+      description: "A refreshing mineral water",
+      quantity: 16,
+      minQuantity: 3,
+    },
+  });
+
+  const favoriteBeer = await prisma.favorite.create({
+    data: {
+      itemId: coldBeer.id,
     },
   });
 };
