@@ -10,3 +10,11 @@ const saltRounds = 11;
 export const encryptPassword = (password: string) => {
   return bcrypt.hash(password, saltRounds);
 };
+
+export const createUnsecureUserInformation = (user: User) => ({
+  email: user.email,
+});
+
+export const createTokenForUser = (user: User) => {
+  return jwt.sign(createUnsecureUserInformation(user), "super-secret");
+};
