@@ -3,57 +3,56 @@ import { prisma } from "../../prisma/db.setup";
 import "express-async-errors";
 import { validateRequest } from "zod-express-middleware";
 import { z } from "zod";
-import { intParseableString as intParseableString } from "../zod/parseableString.schema";
-import { authMiddleware, getDataFromAuthToken } from "../authUtils";
+import { intParseableString as intParseableString } from "../zod/intParsableString";
+import { authMiddleware, getDataFromAuthToken } from "../auth-utils";
+import { Store } from "@prisma/client";
 
 const storeController = Router();
-// TODO  refactor from dog -> store
+// TODO  refactor from { dog } -> { store }
 // Needs ______?
 // authorize
-storeController.get("/dogs", async (req, res) => {
-  const dogs = await prisma.dog.findMany();
-  return res.json(dogs);
+storeController.get("/stores", async (req, res) => {
+  const store = await prisma.store.findMany();
+  return res.json(store);
 });
 
 // TODO
 // Needs ______?
 storeController.post(
-  "/dogs",
+  "/stores",
 
   validateRequest({
     body: z.object({
       name: z.string(),
-      // userEmail: z.string().email(),
+      userId: z.string(),
     }),
   }),
   authMiddleware,
   async (req, res) => {
     // ! JWT handing stuff below
     // moved to authMiddleware
-
     // !JWT jandling stuff above
-    const { name } = req.body;
 
-    const dog = await prisma.dog
+    const { name, userId } = req.body;
+    const store: Store = await prisma.store
       .create({
         data: {
           name,
-          userEmail: req.user!.email,
+          userId: parseInt(userId),
         },
       })
-      .catch(() => null);
+      .catch((e) => e.message);
 
-    if (!dog) {
-      return res.status(500).json({ message: "Dog not created" });
+    if (!store) {
+      return res.status(500).json({ message: "store not created" });
     }
-    return res.json(dog);
+    return res.json(store);
   }
 );
 
 // TODO
-// Needs ______?
 storeController.patch(
-  "/dogs/:dogId",
+  "/stores/:storeId",
   validateRequest({
     body: z
       .object({
@@ -62,57 +61,58 @@ storeController.patch(
       })
       .partial(),
     params: z.object({
-      dogId: intParseableString,
+      storeId: intParseableString,
     }),
   }),
   async (req, res, next) => {
-    const dogId = parseInt(req.params.dogId);
+    const storeId = parseInt(req.params.storeId as string);
 
-    const doesDogExist = await prisma.dog
+    const doesStoreExist = await prisma.store
       .findFirstOrThrow({
         where: {
-          id: dogId,
+          id: storeId,
         },
       })
       .then(() => true)
       .catch(() => false);
 
-    if (!doesDogExist) {
-      return res.status(404).json({ message: "Dog not found" });
+    if (!doesStoreExist) {
+      return res.status(404).json({ message: "Store not found" });
     }
 
-    return await prisma.dog
+    return await prisma.store
       .update({
         where: {
-          id: dogId,
+          id: storeId,
         },
         data: {
           ...req.body,
         },
       })
-      .then((dog) => res.status(201).json({ ...dog }))
-      .catch(() => res.status(500).json({ message: "Dog not updated" }));
+      .then((store) => res.status(201).json({ ...store }))
+      .catch(() => res.status(500).json({ message: "Store not updated" }));
   }
 );
 
-// TODO
-// Needs _____?
+// // TODO
+// // Needs _____?
 storeController.delete(
-  "/dogs/:dogId",
+  "/stores/:storeId",
   validateRequest({
     params: z.object({
-      dogId: intParseableString,
+      storeId: intParseableString,
     }),
   }),
   async (req, res) => {
-    await prisma.dog
+    console.log({ storeId: req.params.storeId });
+    await prisma.store
       .delete({
         where: {
-          id: parseInt(req.params.dogId),
+          id: parseInt(req.params.storeId),
         },
       })
-      .then(() => res.status(201).json({ message: "Dog deleted" }))
-      .catch(() => res.status(500).json({ message: "Dog not deleted" }));
+      .then(() => res.status(201).json({ message: "Store deleted" }))
+      .catch(() => res.status(500).json({ message: "Store not deleted" }));
   }
 );
 
