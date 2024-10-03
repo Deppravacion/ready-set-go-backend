@@ -1,16 +1,15 @@
 import { User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { z } from "zod";
+import { prisma } from "../prisma/db.setup";
 
-// Extend the Request interface to include the user property
 declare module "express-serve-static-core" {
   interface Request {
     user?: User;
   }
 }
-import jwt from "jsonwebtoken";
-import { z } from "zod";
-import { prisma } from "../prisma/db.setup";
 
 const saltRounds = 11;
 
@@ -22,10 +21,6 @@ export const createUnsecureUserInformation = (user: User) => ({
   email: user.email,
 });
 
-// export const createTokenForUser = (user: User) => {
-//   return jwt.sign(createUnsecureUserInformation(user), "super-secret");
-// };
-
 export const createTokenForUser = (user: User) => {
   return jwt.sign(
     createUnsecureUserInformation(user),
@@ -36,7 +31,6 @@ export const createTokenForUser = (user: User) => {
 
 const jwtInfoSchema = z.object({
   email: z.string().email(),
-  // id: z.number(),
   iat: z.number(),
 });
 
@@ -55,14 +49,11 @@ export const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  // ! JWT handing stuff below commented out for user type
   const [, token] = req.headers.authorization?.split?.(" ") || [];
-  // console.log({ token: token });
   const myJwtData = getDataFromAuthToken(token);
   if (!myJwtData) {
     return res.status(401).json({ message: "Invalid Token" });
   }
-  // const { userEmail } = req.body;
   const { email } = myJwtData;
   const userFromJwt = await prisma.user.findFirst({
     where: {
@@ -76,5 +67,4 @@ export const authMiddleware = async (
   req.user = userFromJwt;
   console.log();
   next();
-  // !JWT jandling stuff above
 };

@@ -42,5 +42,23 @@ authController.post(
     return res.status(200).json({ token, userInformation });
   }
 );
+//working here on signup logics
+authController.post(
+  "/signup",
+  validateRequest({
+    body: z.object({
+      name: z.string(),
+      email: z.string().email(),
+      password: z.string(),
+      confirmPassword: z.string(),
+    }),
+  }),
+  async((req, res) => {
+    const { name, email, password, confirmPassword } = req.body;
+    try {
+      const doesUserExist = await;
+    } catch (error) {}
+  })
+);
 
 export { authController };

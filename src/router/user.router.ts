@@ -51,16 +51,53 @@ userController.patch(
   }
 );
 
-//here i feel lost-ish
-userController.get("/users/:userEmail/stores", async (req, res) => {
+userController.get("/users", async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({});
+    if (users.length === 0) {
+      return res.status(404).json({ error: "No Users Found" });
+    }
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+//add the zod to error and authmiddle ware to see if that helps
+userController.get("/users/:userId", async (req, res) => {
   console.log(req.params);
-  const { userEmail } = req.params;
-  const dogs = await prisma.store.findMany({
+  const { userId } = req.params;
+  const user = await prisma.user.findUnique({
     where: {
-      userEmail,
+      id: +userId,
     },
   });
-  res.json(dogs);
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  res.json(user);
+});
+
+userController.get("/users/:userId/stores", async (req, res) => {
+  console.log(req.params);
+  const { userId } = req.params;
+  const user = await prisma.user.findUnique({
+    where: {
+      id: +userId,
+    },
+  });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  const stores = await prisma.store.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+  res.json(stores);
 });
 
 export { userController };
