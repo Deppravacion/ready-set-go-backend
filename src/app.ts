@@ -4,6 +4,7 @@ import "express-async-errors";
 import { userController } from "./router/user.router";
 import { authController } from "./router/auth.router";
 import { storeController } from "./router/stores.router";
+import { itemsController } from "./router/items.router";
 
 const app = express();
 app.use(express.json());
@@ -24,5 +25,6 @@ app.get("/", (req, res) => {
 app.use(authController);
 app.use(storeController);
 app.use(userController);
+app.use(itemsController);
 
 app.listen(3000);

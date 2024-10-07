@@ -17,9 +17,13 @@ export const encryptPassword = (password: string) => {
   return bcrypt.hash(password, saltRounds);
 };
 
-export const createUnsecureUserInformation = (user: User) => ({
-  email: user.email,
-});
+export const createUnsecureUserInformation = (user: User) => {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+  };
+};
 
 export const createTokenForUser = (user: User) => {
   return jwt.sign(
@@ -65,6 +69,6 @@ export const authMiddleware = async (
     return res.status(401).json({ message: "User not found" });
   }
   req.user = userFromJwt;
-  console.log();
+  console.log({ user: userFromJwt });
   next();
 };

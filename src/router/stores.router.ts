@@ -9,11 +9,47 @@ import { Store } from "@prisma/client";
 
 const storeController = Router();
 // TODO  refactor from { dog } -> { store }
-// Needs ______?
-// authorize
-storeController.get("/stores", async (req, res) => {
-  const store = await prisma.store.findMany();
-  return res.json(store);
+
+//trying to remove the needed users/:userId
+storeController.get("/users/:userId/stores", async (req, res) => {
+  const { userId } = req.params;
+  const user = await prisma.user.findUnique({
+    where: {
+      id: +userId,
+    },
+  });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  const stores = await prisma.store.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+  res.json(stores);
+  console.log({ stores: stores });
+});
+
+// get a store by storeId
+storeController.get("/users/:userId/stores/:storeId", async (req, res) => {
+  const { userId, storeId } = req.params;
+  const user = await prisma.user.findUnique({
+    where: {
+      id: +userId,
+    },
+  });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  const stores = await prisma.store.findMany({
+    where: {
+      userId: user.id,
+      id: +storeId,
+    },
+  });
+  res.json(stores);
 });
 
 // TODO
@@ -29,10 +65,6 @@ storeController.post(
   }),
   authMiddleware,
   async (req, res) => {
-    // ! JWT handing stuff below
-    // moved to authMiddleware
-    // !JWT jandling stuff above
-
     const { name, userId } = req.body;
     const store: Store = await prisma.store
       .create({

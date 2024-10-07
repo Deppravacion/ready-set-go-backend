@@ -3,9 +3,51 @@ import { validateRequest } from "zod-express-middleware";
 import "express-async-errors";
 import { z } from "zod";
 import { prisma } from "../../prisma/db.setup";
+import { encryptPassword } from "../auth-utils";
 
 const userController = Router();
 
+//create user
+userController.post(
+  "/users/signup",
+  validateRequest({
+    body: z.object({
+      name: z.string(),
+      email: z.string().email(),
+      password: z.string(),
+      confirmPassword: z.string(),
+    }),
+  }),
+  async (req, res) => {
+    const { name, email, password, confirmPassword } = req.body;
+    try {
+      const doesUserExist = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+      if (doesUserExist) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+      const passwordHash = encryptPassword(password);
+
+      const user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          passwordHash: (await passwordHash).toString(),
+        },
+      });
+      console.log({ userDataFromUserRouterCreateUser: user });
+      return res.status(200).json({ user });
+    } catch (error) {
+      console.error(error);
+      throw new Error(res.status.toString());
+    }
+  }
+);
+
+//Update user
 userController.patch(
   "/users/:email",
   validateRequest({
@@ -51,6 +93,7 @@ userController.patch(
   }
 );
 
+//all users
 userController.get("/users", async (req, res) => {
   try {
     const users = await prisma.user.findMany({});
@@ -65,8 +108,9 @@ userController.get("/users", async (req, res) => {
 });
 
 //add the zod to error and authmiddle ware to see if that helps
+//user by id
 userController.get("/users/:userId", async (req, res) => {
-  console.log(req.params);
+  console.log({ userById: req.params });
   const { userId } = req.params;
   const user = await prisma.user.findUnique({
     where: {
@@ -74,14 +118,31 @@ userController.get("/users/:userId", async (req, res) => {
     },
   });
   if (!user) {
-    return res.status(404).json({ error: "User not found" });
+    return res.status(404).json({ error: "User not found with that ID" });
   }
 
   res.json(user);
 });
 
+//get user by Email
+userController.get("/users/user/:email", async (req, res) => {
+  // console.log(req.params);
+  const { email } = req.params;
+  console.log({ emailParamsGetUserByEmail: email });
+  const user = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+  if (!user) {
+    return res.status(404).json({ error: "No user found with that email" });
+  }
+  res.json(user);
+});
+
+//get user stores
 userController.get("/users/:userId/stores", async (req, res) => {
-  console.log(req.params);
+  // console.log(req.params);
   const { userId } = req.params;
   const user = await prisma.user.findUnique({
     where: {
