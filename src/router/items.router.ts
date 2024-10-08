@@ -6,11 +6,10 @@ import { prisma } from "../../prisma/db.setup";
 
 const itemsController = Router();
 
-//gets all stores for a user
+//gets all items for a store
 itemsController.get(
   "/users/:userId/stores/:storeId/items",
   async (req, res) => {
-    // const { storeId } = req.params;
     const { userId, storeId } = req.params;
     const user = await prisma.user.findUnique({
       where: {
@@ -33,6 +32,31 @@ itemsController.get(
     }
 
     res.status(200).json(items);
+  }
+);
+
+//get an item by id
+itemsController.get(
+  "/users/:userId/stores/:storeId/items/:itemId",
+  async (req, res) => {
+    // const { storeId } = req.params;
+    const { userId, storeId, itemId } = req.params;
+    const user = await prisma.user.findUnique({
+      where: {
+        id: +userId,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const item = await prisma.item.findUnique({
+      where: {
+        id: +itemId,
+      },
+    });
+
+    res.status(200).json(item);
   }
 );
 

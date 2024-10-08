@@ -10,7 +10,7 @@ import { Store } from "@prisma/client";
 const storeController = Router();
 // TODO  refactor from { dog } -> { store }
 
-//trying to remove the needed users/:userId
+//get stores for user
 storeController.get("/users/:userId/stores", async (req, res) => {
   const { userId } = req.params;
   const user = await prisma.user.findUnique({
@@ -28,7 +28,6 @@ storeController.get("/users/:userId/stores", async (req, res) => {
     },
   });
   res.json(stores);
-  console.log({ stores: stores });
 });
 
 // get a store by storeId
