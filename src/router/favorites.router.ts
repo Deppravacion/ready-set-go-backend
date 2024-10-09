@@ -7,18 +7,54 @@ import { prisma } from "../../prisma/db.setup";
 const favoritesController = Router();
 
 favoritesController.get(
+  "/users/:userId/stores/:storeId/favorites",
+  async (req, res) => {
+    const { userId, storeId } = req.params;
+    console.log(userId, storeId);
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: +userId,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const items = await prisma.item.findMany({
+      where: {
+        storeId: +storeId,
+      },
+    });
+
+    if (items.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Item not found in the specified store" });
+    }
+    console.log({ items: items });
+
+    const favoriteQueries = items.map((item) => {
+      prisma.favorite.findMany({
+        where: {
+          itemId: item.id,
+        },
+      });
+    });
+
+    const favortiesArray = await Promise.all(favoriteQueries);
+    // const allFavorites = favortiesArray.flat();
+
+    // res.status(200).json(allFavorites);
+    res.status(200).json(favortiesArray);
+  }
+);
+
+//get fav by id
+favoritesController.get(
   "/users/:userId/stores/:storeId/items/:itemId/favorite",
   async (req, res) => {
     const { userId, storeId, itemId } = req.params;
-
-    console.log(
-      "Received request with userId:",
-      userId,
-      "storeId:",
-      storeId,
-      "itemId:",
-      itemId
-    );
 
     const user = await prisma.user.findUnique({
       where: {
@@ -42,7 +78,6 @@ favoritesController.get(
         .json({ error: "Item not found in the specified store" });
     }
 
-    console.log("Fetching favorites for itemId:", itemId);
     const favorites = await prisma.favorite.findMany({
       where: {
         itemId: +itemId,
