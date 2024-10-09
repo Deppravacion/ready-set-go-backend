@@ -12,6 +12,7 @@ favoritesController.get(
     const { userId, storeId } = req.params;
     console.log(userId, storeId);
 
+    //grab a user
     const user = await prisma.user.findUnique({
       where: {
         id: +userId,
@@ -21,6 +22,7 @@ favoritesController.get(
       return res.status(404).json({ error: "User not found" });
     }
 
+    //get items associated with the store
     const items = await prisma.item.findMany({
       where: {
         storeId: +storeId,
@@ -34,8 +36,9 @@ favoritesController.get(
     }
     console.log({ items: items });
 
+    //get the favs from items
     const favoriteQueries = items.map((item) => {
-      prisma.favorite.findMany({
+      return prisma.favorite.findMany({
         where: {
           itemId: item.id,
         },
@@ -46,7 +49,6 @@ favoritesController.get(
     const allFavorites = favortiesArray.flat();
 
     res.status(200).json(allFavorites);
-    // res.status(200).json(favortiesArray);
   }
 );
 

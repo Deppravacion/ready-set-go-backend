@@ -44,6 +44,15 @@ const seed = async () => {
     },
   });
 
+  const poolStorage = await prisma.store.create({
+    data: {
+      name: "Pool-Storage",
+      user: {
+        connect: { id: peter.id },
+      },
+    },
+  });
+
   //create item for garage-fridge
   const coldBeer = await prisma.item.create({
     data: {
@@ -69,9 +78,25 @@ const seed = async () => {
     },
   });
 
+  const acid = await prisma.item.create({
+    data: {
+      name: "HCL Liquid Acid",
+      storeId: poolStorage.id,
+      image: "default-image.jpg",
+      description: "A refreshing mineral water",
+      quantity: 16,
+      minQuantity: 3,
+    },
+  });
+
   const favoriteBeer = await prisma.favorite.create({
     data: {
       itemId: coldBeer.id,
+    },
+  });
+  const favoriteWater = await prisma.favorite.create({
+    data: {
+      itemId: sparklingWater.id,
     },
   });
 };
