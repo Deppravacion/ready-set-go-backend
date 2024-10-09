@@ -43,10 +43,10 @@ favoritesController.get(
     });
 
     const favortiesArray = await Promise.all(favoriteQueries);
-    // const allFavorites = favortiesArray.flat();
+    const allFavorites = favortiesArray.flat();
 
-    // res.status(200).json(allFavorites);
-    res.status(200).json(favortiesArray);
+    res.status(200).json(allFavorites);
+    // res.status(200).json(favortiesArray);
   }
 );
 
