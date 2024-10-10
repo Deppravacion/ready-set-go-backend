@@ -91,6 +91,24 @@ favoritesController.get(
   }
 );
 
+//create a new fav
+favoritesController.post(
+  `/users/:userId/stores/:storeId/items/:itemId/favorite`,
+  async (req, res) => {
+    const { storeId, itemId } = req.params;
+    try {
+      const newFav = await prisma.favorite.create({
+        data: {
+          itemId: +itemId,
+        },
+      });
+      res.status(201).json(newFav);
+    } catch (err) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
 //delete Fav
 //definitely need to set middleware to handle checking for USER, STORE, ITEM etc.
 favoritesController.delete(
