@@ -109,56 +109,77 @@ userController.get("/users", async (req, res) => {
 
 //add the zod to error and authmiddle ware to see if that helps
 //user by id
-userController.get("/users/:userId", async (req, res) => {
-  console.log({ userById: req.params });
-  const { userId } = req.params;
-  const user = await prisma.user.findUnique({
-    where: {
-      id: +userId,
-    },
-  });
-  if (!user) {
-    return res.status(404).json({ error: "User not found with that ID" });
-  }
+userController.get(
+  "/users/:userId",
+  validateRequest({
+    params: z.object({ userId: z.string() }),
+  }),
+  async (req, res) => {
+    console.log({ userById: req.params });
+    const { userId } = req.params;
+    const user = await prisma.user.findUnique({
+      where: {
+        id: +userId,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found with that ID" });
+    }
 
-  res.json(user);
-});
+    res.json(user);
+  }
+);
 
 //get user by Email
-userController.get("/users/user/:email", async (req, res) => {
-  // console.log(req.params);
-  const { email } = req.params;
-  console.log({ emailParamsGetUserByEmail: email });
-  const user = await prisma.user.findUnique({
-    where: {
-      email: email,
-    },
-  });
-  if (!user) {
-    return res.status(404).json({ error: "No user found with that email" });
+userController.get(
+  "/users/user/:email",
+  validateRequest({
+    params: z.object({
+      email: z.string().email(),
+    }),
+  }),
+  async (req, res) => {
+    const { email } = req.params;
+    console.log({ emailParamsGetUserByEmail: email });
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "No user found with that email" });
+    }
+    res.json(user);
   }
-  res.json(user);
-});
+);
 
 //get user stores
-userController.get("/users/:userId/stores", async (req, res) => {
-  // console.log(req.params);
-  const { userId } = req.params;
-  const user = await prisma.user.findUnique({
-    where: {
-      id: +userId,
-    },
-  });
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
+userController.get(
+  "/users/:userId/stores",
+  validateRequest({
+    params: z.object({
+      userId: z.string(),
+    }),
+  }),
+  async (req, res) => {
+    // console.log(req.params);
+    const { userId } = req.params;
+    const user = await prisma.user.findUnique({
+      where: {
+        id: +userId,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-  const stores = await prisma.store.findMany({
-    where: {
-      userId: user.id,
-    },
-  });
-  res.json(stores);
-});
+    const stores = await prisma.store.findMany({
+      where: {
+        userId: user.id,
+      },
+    });
+    res.json(stores);
+  }
+);
 
 export { userController };
