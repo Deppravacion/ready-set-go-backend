@@ -11,58 +11,64 @@ const storeController = Router();
 // TODO  refactor from { dog } -> { store }
 
 //get stores for user
-storeController.get("/users/:userId/stores", async (req, res) => {
-  const { userId } = req.params;
-  const user = await prisma.user.findUnique({
-    where: {
-      id: +userId,
-    },
-  });
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
+storeController.get(
+  "/users/:userId/stores",
+  // authMiddleware,
+  validateRequest({
+    params: z.object({
+      userId: z.string(),
+    }),
+  }),
+  async (req, res) => {
+    const { userId } = req.params;
+    // const user = await prisma.user.findUnique({
+    //   where: {
+    //     id: +userId,
+    //   },
+    // });
+    // if (!user) {
+    //   return res.status(404).json({ error: "User not found" });
+    // }
 
-  const stores = await prisma.store.findMany({
-    where: {
-      userId: user.id,
-    },
-  });
-  res.json(stores);
-});
+    const stores = await prisma.store.findMany({
+      where: {
+        userId: +userId,
+      },
+    });
+    res.json(stores);
+  }
+);
 
 // get a store by storeId
-storeController.get("/users/:userId/stores/:storeId", async (req, res) => {
-  const { userId, storeId } = req.params;
-  const user = await prisma.user.findUnique({
-    where: {
-      id: +userId,
-    },
-  });
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
+storeController.get(
+  "/users/:userId/stores/:storeId",
+  validateRequest({
+    params: z.object({
+      userId: z.string(),
+      storeId: z.string(),
+    }),
+  }),
+  async (req, res) => {
+    const { userId, storeId } = req.params;
+    const stores = await prisma.store.findMany({
+      where: {
+        userId: +userId,
+        id: +storeId,
+      },
+    });
+    res.json(stores);
   }
+);
 
-  const stores = await prisma.store.findMany({
-    where: {
-      userId: user.id,
-      id: +storeId,
-    },
-  });
-  res.json(stores);
-});
-
-// TODO
-// Needs ______?
+// create a store
 storeController.post(
   "/stores",
-
   validateRequest({
     body: z.object({
       name: z.string(),
       userId: z.string(),
     }),
   }),
-  authMiddleware,
   async (req, res) => {
     const { name, userId } = req.body;
     const store: Store = await prisma.store
@@ -81,7 +87,7 @@ storeController.post(
   }
 );
 
-// TODO
+// upadate a store
 storeController.patch(
   "/stores/:storeId",
   validateRequest({
@@ -95,7 +101,7 @@ storeController.patch(
       storeId: intParseableString,
     }),
   }),
-  async (req, res, next) => {
+  async (req, res) => {
     const storeId = parseInt(req.params.storeId as string);
 
     const doesStoreExist = await prisma.store
