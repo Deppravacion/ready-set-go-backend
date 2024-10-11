@@ -4,6 +4,7 @@ import "express-async-errors";
 import { z } from "zod";
 import { prisma } from "../../prisma/db.setup";
 import { encryptPassword } from "../auth-utils";
+import { intParseableString } from "../zod/intParsableString";
 
 const userController = Router();
 
@@ -158,24 +159,24 @@ userController.get(
   "/users/:userId/stores",
   validateRequest({
     params: z.object({
-      userId: z.string(),
+      userId: intParseableString,
     }),
   }),
   async (req, res) => {
     // console.log(req.params);
     const { userId } = req.params;
-    const user = await prisma.user.findUnique({
-      where: {
-        id: +userId,
-      },
-    });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    // const user = await prisma.user.findUnique({
+    //   where: {
+    //     id: +userId,
+    //   },
+    // });
+    // if (!user) {
+    //   return res.status(404).json({ error: "User not found" });
+    // }
 
     const stores = await prisma.store.findMany({
       where: {
-        userId: user.id,
+        userId: +userId,
       },
     });
     res.json(stores);
