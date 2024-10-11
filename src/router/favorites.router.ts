@@ -6,6 +6,7 @@ import { prisma } from "../../prisma/db.setup";
 
 const favoritesController = Router();
 
+//get store favs
 favoritesController.get(
   "/users/:userId/stores/:storeId/favorites",
   async (req, res) => {
@@ -95,7 +96,7 @@ favoritesController.get(
 favoritesController.post(
   `/users/:userId/stores/:storeId/items/:itemId/favorite`,
   async (req, res) => {
-    const { storeId, itemId } = req.params;
+    const { itemId } = req.params;
     try {
       const newFav = await prisma.favorite.create({
         data: {
@@ -112,42 +113,45 @@ favoritesController.post(
 //delete Fav
 //definitely need to set middleware to handle checking for USER, STORE, ITEM etc.
 favoritesController.delete(
-  "/users/:userId/stores/:storeId/items/:itemId/favorite/delete",
+  "/users/:userId/stores/:storeId/items/:itemId/favorite",
   async (req, res) => {
     const { userId, storeId, itemId } = req.params;
-    const user = await prisma.user.findUnique({
-      where: {
-        id: +userId,
-      },
-    });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    // const user = await prisma.user.findUnique({
+    //   where: {
+    //     id: +userId,
+    //   },
+    // });
+    // if (!userId) {
+    //   // if (!user) {
+    //   return res.status(404).json({ error: "User not found" });
+    // }
 
-    const item = await prisma.item.findFirst({
-      where: {
-        id: +itemId,
-        storeId: +storeId,
-      },
-    });
-
-    if (!item) {
-      return res
-        .status(404)
-        .json({ error: "Item not found in the specified store" });
-    }
-    await prisma.favorite.deleteMany({
-      where: {
-        itemId: +itemId,
-      },
-    });
-    // const favorites = await prisma.favorite.findMany({
+    // const item = await prisma.item.findFirst({
     //   where: {
     //     id: +itemId,
+    //     storeId: +storeId,
     //   },
     // });
 
-    res.status(200).json({ message: "Favorite deleted successfully" });
+    try {
+      if (!itemId) {
+        // if (!item) {
+        return res
+          .status(404)
+          .json({ error: "Item not found in the specified store" });
+      }
+
+      await prisma.favorite.deleteMany({
+        where: {
+          itemId: +itemId,
+        },
+      });
+      // return res.status(200).json(favs);
+      return res.status(200).json({ message: "Favorite deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      return res.status(501);
+    }
   }
 );
 
