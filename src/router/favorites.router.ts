@@ -3,6 +3,7 @@ import { validateRequest } from "zod-express-middleware";
 import "express-async-errors";
 import { z } from "zod";
 import { prisma } from "../../prisma/db.setup";
+import { intParseableString } from "../zod/intParsableString";
 
 const favoritesController = Router();
 
@@ -11,7 +12,9 @@ favoritesController.get(
   "/users/:userId/stores/:storeId/favorites",
   async (req, res) => {
     const { userId, storeId } = req.params;
-    console.log(userId, storeId);
+    // console.log(userId, storeId);
+    console.log({ userId: userId });
+    console.log({ storeId: storeId });
 
     //grab a user
     const user = await prisma.user.findUnique({
@@ -54,31 +57,14 @@ favoritesController.get(
 
 //get fav by id
 favoritesController.get(
-  "/users/:userId/stores/:storeId/items/:itemId/favorite",
+  "/items/:itemId/favorite",
+  validateRequest({
+    params: z.object({
+      itemId: intParseableString,
+    }),
+  }),
   async (req, res) => {
-    const { userId, storeId, itemId } = req.params;
-
-    const user = await prisma.user.findUnique({
-      where: {
-        id: +userId,
-      },
-    });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const item = await prisma.item.findFirst({
-      where: {
-        id: +itemId,
-        storeId: +storeId,
-      },
-    });
-
-    if (!item) {
-      return res
-        .status(404)
-        .json({ error: "Item not found in the specified store" });
-    }
+    const { itemId } = req.params;
 
     const favorites = await prisma.favorite.findMany({
       where: {
@@ -87,14 +73,18 @@ favoritesController.get(
     });
 
     console.log("Favorites found:", favorites);
-
     res.status(200).json(favorites);
   }
 );
 
 //create a new fav
 favoritesController.post(
-  `/users/:userId/stores/:storeId/items/:itemId/favorite`,
+  `/items/:itemId/favorite`,
+  validateRequest({
+    params: z.object({
+      itemId: intParseableString,
+    }),
+  }),
   async (req, res) => {
     const { itemId } = req.params;
     try {
@@ -111,46 +101,45 @@ favoritesController.post(
 );
 
 //delete Fav
-//definitely need to set middleware to handle checking for USER, STORE, ITEM etc.
 favoritesController.delete(
-  "/users/:userId/stores/:storeId/items/:itemId/favorite",
+  "/favorite/:favoriteId",
+  // "/items/:itemId/favorite",
+  validateRequest({
+    params: z.object({
+      favoriteId: intParseableString,
+    }),
+  }),
   async (req, res) => {
-    const { userId, storeId, itemId } = req.params;
-    // const user = await prisma.user.findUnique({
-    //   where: {
-    //     id: +userId,
-    //   },
-    // });
-    // if (!userId) {
-    //   // if (!user) {
-    //   return res.status(404).json({ error: "User not found" });
-    // }
-
-    // const item = await prisma.item.findFirst({
-    //   where: {
-    //     id: +itemId,
-    //     storeId: +storeId,
-    //   },
-    // });
+    const { favoriteId } = req.params;
 
     try {
-      if (!itemId) {
-        // if (!item) {
-        return res
-          .status(404)
-          .json({ error: "Item not found in the specified store" });
-      }
+      // await prisma.favorite.deleteMany({
+      //   where: {
+      //     itemId: +itemId,
+      //   },
+      // });
+      // res.status(200).json({ message: "Favorite deleted successfully" });
+      console.log(`Attempting to delete favorite with itemId: ${favoriteId}`);
 
-      await prisma.favorite.deleteMany({
+      const deleteResult = await prisma.favorite.deleteMany({
         where: {
-          itemId: +itemId,
+          id: +favoriteId,
         },
       });
-      // return res.status(200).json(favs);
-      return res.status(200).json({ message: "Favorite deleted successfully" });
+
+      console.log(`Delete result: ${JSON.stringify(deleteResult)}`);
+
+      if (deleteResult.count === 0) {
+        return res.status(404).json({ error: "Favorite not found" });
+      }
+
+      res.status(200).json({ message: "Favorite deleted successfully" });
     } catch (error) {
       console.error(error);
-      return res.status(501);
+      res.status(500).json({
+        error: "Failed to delete favorite",
+        details: (error as Error).message,
+      });
     }
   }
 );

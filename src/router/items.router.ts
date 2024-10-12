@@ -3,22 +3,31 @@ import { validateRequest } from "zod-express-middleware";
 import "express-async-errors";
 import { z } from "zod";
 import { prisma } from "../../prisma/db.setup";
+import { intParseableString } from "../zod/intParsableString";
 
 const itemsController = Router();
 
 //gets all items for a store
 itemsController.get(
-  "/users/:userId/stores/:storeId/items",
+  "/stores/:storeId/items",
+  // "/users/:userId/stores/:storeId/items",
+  validateRequest({
+    params: z.object({
+      // userId: intParseableString,
+      storeId: intParseableString,
+    }),
+  }),
   async (req, res) => {
-    const { userId, storeId } = req.params;
-    const user = await prisma.user.findUnique({
-      where: {
-        id: +userId,
-      },
-    });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    const { storeId } = req.params;
+    // const { userId, storeId } = req.params;
+    // const user = await prisma.user.findUnique({
+    //   where: {
+    //     id: +userId,
+    //   },
+    // });
+    // if (!user) {
+    //   return res.status(404).json({ error: "User not found" });
+    // }
 
     const items = await prisma.item.findMany({
       where: {
@@ -37,18 +46,24 @@ itemsController.get(
 
 //get an item by id
 itemsController.get(
-  "/users/:userId/stores/:storeId/items/:itemId",
+  "/stores/:storeId/items/:itemId",
+  validateRequest({
+    params: z.object({
+      storeId: intParseableString,
+      itemId: intParseableString,
+    }),
+  }),
   async (req, res) => {
     // const { storeId } = req.params;
-    const { userId, storeId, itemId } = req.params;
-    const user = await prisma.user.findUnique({
-      where: {
-        id: +userId,
-      },
-    });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    const { storeId, itemId } = req.params;
+    // const user = await prisma.user.findUnique({
+    //   where: {
+    //     id: +userId,
+    //   },
+    // });
+    // if (!user) {
+    //   return res.status(404).json({ error: "User not found" });
+    // }
 
     const item = await prisma.item.findUnique({
       where: {

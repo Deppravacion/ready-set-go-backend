@@ -8,7 +8,6 @@ import { authMiddleware, getDataFromAuthToken } from "../auth-utils";
 import { Store } from "@prisma/client";
 
 const storeController = Router();
-// TODO  refactor from { dog } -> { store }
 
 //get stores for user
 storeController.get(
@@ -16,7 +15,7 @@ storeController.get(
   // authMiddleware,
   validateRequest({
     params: z.object({
-      userId: z.string(),
+      userId: intParseableString,
     }),
   }),
   async (req, res) => {
