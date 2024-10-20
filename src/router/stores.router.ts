@@ -20,14 +20,6 @@ storeController.get(
   }),
   async (req, res) => {
     const { userId } = req.params;
-    // const user = await prisma.user.findUnique({
-    //   where: {
-    //     id: +userId,
-    //   },
-    // });
-    // if (!user) {
-    //   return res.status(404).json({ error: "User not found" });
-    // }
 
     const stores = await prisma.store.findMany({
       where: {
@@ -70,11 +62,13 @@ storeController.post(
   }),
   async (req, res) => {
     const { name, userId } = req.body;
+    console.log({ reqBody: req.body });
     const store: Store = await prisma.store
       .create({
         data: {
           name,
-          userId: parseInt(userId),
+          userId: +userId,
+          // userId: parseInt(userId),
         },
       })
       .catch((e) => e.message);

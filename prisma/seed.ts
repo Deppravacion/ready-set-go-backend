@@ -43,6 +43,14 @@ const seed = async () => {
       },
     },
   });
+  const gameBox = await prisma.store.create({
+    data: {
+      name: "Drinking Games Storage",
+      user: {
+        connect: { id: jon.id },
+      },
+    },
+  });
 
   const poolStorage = await prisma.store.create({
     data: {
@@ -75,6 +83,28 @@ const seed = async () => {
       description: "A refreshing mineral water",
       quantity: 16,
       minQuantity: 3,
+    },
+  });
+
+  const orangeJuice = await prisma.item.create({
+    data: {
+      name: "Fresh Squeezed OJ",
+      storeId: garageFridge.id,
+      image: "default-image.jpg",
+      description: "A refreshing pulpy juice",
+      quantity: 2,
+      minQuantity: 1,
+    },
+  });
+
+  const dartsSet = await prisma.item.create({
+    data: {
+      name: "Red Dragon 25g tungston darts",
+      storeId: gameBox.id,
+      image: "default-image.jpg",
+      description: "A quality dart set",
+      quantity: 1,
+      minQuantity: 0,
     },
   });
 

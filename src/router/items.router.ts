@@ -13,21 +13,11 @@ itemsController.get(
   // "/users/:userId/stores/:storeId/items",
   validateRequest({
     params: z.object({
-      // userId: intParseableString,
       storeId: intParseableString,
     }),
   }),
   async (req, res) => {
     const { storeId } = req.params;
-    // const { userId, storeId } = req.params;
-    // const user = await prisma.user.findUnique({
-    //   where: {
-    //     id: +userId,
-    //   },
-    // });
-    // if (!user) {
-    //   return res.status(404).json({ error: "User not found" });
-    // }
 
     const items = await prisma.item.findMany({
       where: {
@@ -54,16 +44,7 @@ itemsController.get(
     }),
   }),
   async (req, res) => {
-    // const { storeId } = req.params;
     const { storeId, itemId } = req.params;
-    // const user = await prisma.user.findUnique({
-    //   where: {
-    //     id: +userId,
-    //   },
-    // });
-    // if (!user) {
-    //   return res.status(404).json({ error: "User not found" });
-    // }
 
     const item = await prisma.item.findUnique({
       where: {
@@ -75,4 +56,50 @@ itemsController.get(
   }
 );
 
+itemsController.delete(
+  "/stores/:storeId/items/:itemId",
+  validateRequest({
+    params: z.object({
+      storeId: intParseableString,
+      itemId: intParseableString,
+    }),
+  }),
+  async (req, res) => {
+    const { storeId, itemId } = req.params;
+    //get fav by itemId and delete fav
+    //then delete item
+    const itemFav = await prisma.favorite.findFirst({
+      where: {
+        itemId: +itemId,
+      },
+    });
+
+    if (itemFav != null) {
+      try {
+        await prisma.favorite.delete({
+          where: {
+            id: itemFav.id,
+          },
+        });
+        res.status(200).json({ message: "Favorite deleted successfully" });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({
+          error: "Failed to delete favorite",
+          details: (error as Error).message,
+        });
+      }
+    } else {
+      res.status(404).json({ error: "Favorite not found" });
+    }
+
+    await prisma.item.delete({
+      where: {
+        id: +itemId,
+      },
+    });
+
+    res.status(200).send({ message: "the item has been deleted" });
+  }
+);
 export { itemsController };
