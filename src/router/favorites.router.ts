@@ -4,6 +4,7 @@ import "express-async-errors";
 import { z } from "zod";
 import { prisma } from "../../prisma/db.setup";
 import { intParseableString } from "../zod/intParsableString";
+import { deleteFavoriteByItemId } from "./helpers";
 
 const favoritesController = Router();
 
@@ -12,9 +13,6 @@ favoritesController.get(
   "/users/:userId/stores/:storeId/favorites",
   async (req, res) => {
     const { userId, storeId } = req.params;
-    // console.log(userId, storeId);
-    console.log({ userId: userId });
-    console.log({ storeId: storeId });
 
     //grab a user
     const user = await prisma.user.findUnique({
@@ -103,31 +101,22 @@ favoritesController.post(
 //delete Fav
 favoritesController.delete(
   "/favorite/:favoriteId",
-  // "/items/:itemId/favorite",
   validateRequest({
     params: z.object({
       favoriteId: intParseableString,
     }),
   }),
+
   async (req, res) => {
     const { favoriteId } = req.params;
+    // await deleteFavoriteByItemId(+favoriteId, res)
 
     try {
-      // await prisma.favorite.deleteMany({
-      //   where: {
-      //     itemId: +itemId,
-      //   },
-      // });
-      // res.status(200).json({ message: "Favorite deleted successfully" });
-      console.log(`Attempting to delete favorite with itemId: ${favoriteId}`);
-
       const deleteResult = await prisma.favorite.deleteMany({
         where: {
           id: +favoriteId,
         },
       });
-
-      console.log(`Delete result: ${JSON.stringify(deleteResult)}`);
 
       if (deleteResult.count === 0) {
         return res.status(404).json({ error: "Favorite not found" });

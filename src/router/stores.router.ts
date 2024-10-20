@@ -6,6 +6,10 @@ import { z } from "zod";
 import { intParseableString as intParseableString } from "../zod/intParsableString";
 import { authMiddleware, getDataFromAuthToken } from "../auth-utils";
 import { Store } from "@prisma/client";
+import {
+  deleteFavoriteByItemId,
+  deleteItemsAndFavoritesByStoreId,
+} from "./helpers";
 
 const storeController = Router();
 
@@ -134,15 +138,26 @@ storeController.delete(
     }),
   }),
   async (req, res) => {
+    const { storeId } = req.params;
     console.log({ storeId: req.params.storeId });
-    await prisma.store
-      .delete({
-        where: {
-          id: parseInt(req.params.storeId),
-        },
-      })
-      .then(() => res.status(201).json({ message: "Store deleted" }))
-      .catch(() => res.status(500).json({ message: "Store not deleted" }));
+
+    try {
+      await deleteItemsAndFavoritesByStoreId(+storeId, res);
+      await prisma.store
+        .delete({
+          where: {
+            id: parseInt(req.params.storeId),
+          },
+        })
+        .then(() => res.status(201).json({ message: "Store deleted" }))
+        .catch(() => res.status(500).json({ message: "Store not deleted" }));
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: "Failed to delete store and its items",
+        details: (error as Error).message,
+      });
+    }
   }
 );
 
