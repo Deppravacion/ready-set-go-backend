@@ -57,15 +57,16 @@ itemsController.get(
 );
 
 itemsController.delete(
-  "/stores/:storeId/items/:itemId",
+  "/items/:itemId",
+  // "/stores/:storeId/items/:itemId",
   validateRequest({
     params: z.object({
-      storeId: intParseableString,
+      // storeId: intParseableString,
       itemId: intParseableString,
     }),
   }),
   async (req, res) => {
-    const { storeId, itemId } = req.params;
+    const { itemId } = req.params;
     //get fav by itemId and delete fav
     //then delete item
     const itemFav = await prisma.favorite.findFirst({
