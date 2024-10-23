@@ -4,6 +4,7 @@ import "express-async-errors";
 import { z } from "zod";
 import { prisma } from "../../prisma/db.setup";
 import { intParseableString } from "../zod/intParsableString";
+import { Item } from "@prisma/client";
 
 const itemsController = Router();
 
@@ -53,6 +54,43 @@ itemsController.get(
     });
 
     res.status(200).json(item);
+  }
+);
+
+//create item
+
+itemsController.post(
+  "/items",
+  validateRequest({
+    body: z.object({
+      name: z.string(),
+      image: z.string(),
+      description: z.string(),
+      quantity: z.string(),
+      minQuantity: z.string(),
+      storeId: z.string(),
+    }),
+  }),
+  async (req, res) => {
+    const { name, image, description, quantity, minQuantity, storeId } =
+      req.body;
+
+    const item: Item = await prisma.item
+      .create({
+        data: {
+          name,
+          image,
+          description,
+          quantity: +quantity,
+          minQuantity: +minQuantity,
+          storeId: +storeId,
+        },
+      })
+      .catch((e) => e.message);
+    if (!item) {
+      return res.status(500).json({ message: "No Item Created" });
+    }
+    return res.json(item).json({ message: "Item Created" });
   }
 );
 
