@@ -17,11 +17,20 @@ const seed = async () => {
   console.log("Seeding the database...");
   await clearDb();
 
+  //create tyson
+  const tyson = await prisma.user.create({
+    data: {
+      email: "tyson@tyson.com",
+      name: "player1-tyson",
+      passwordHash: await encryptPassword("password"),
+    },
+  });
+
   // Create Jon
   const jon = await prisma.user.create({
     data: {
       email: "jon@jon.com",
-      name: "jon",
+      name: "comrade-jon",
       passwordHash: await encryptPassword("jonspassword"),
     },
   });
@@ -29,17 +38,17 @@ const seed = async () => {
   const peter = await prisma.user.create({
     data: {
       email: "peter@peter.com",
-      name: "pete",
+      name: "coder-pete",
       passwordHash: await encryptPassword("peterspassword"),
     },
   });
 
-  //create a store for jon
+  //create a store for tyson
   const garageFridge = await prisma.store.create({
     data: {
       name: "Garage-Fridge",
       user: {
-        connect: { id: jon.id },
+        connect: { id: tyson.id },
       },
     },
   });
@@ -47,7 +56,7 @@ const seed = async () => {
     data: {
       name: "Drinking Games Storage",
       user: {
-        connect: { id: jon.id },
+        connect: { id: tyson.id },
       },
     },
   });
@@ -72,9 +81,7 @@ const seed = async () => {
       minQuantity: 8,
     },
   });
-  console.log("crated garage fridge: id", garageFridge.id);
-  console.log("created beer, store Id: ", coldBeer.storeId);
-  console.log("created beer, beer ID: ", coldBeer.id);
+
   const sparklingWater = await prisma.item.create({
     data: {
       name: "Topo Chico",

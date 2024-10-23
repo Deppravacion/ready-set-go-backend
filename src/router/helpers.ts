@@ -56,13 +56,11 @@ export async function deleteItemsAndFavoritesByStoreId(
         });
       }
       return {
-        success: true,
         message: "Items and their favorites deleted successfully",
       };
     } catch (error) {
       console.error(error);
       return {
-        success: false,
         message: "Failed to delete items and their favorites",
         details: (error as Error).message,
       };
