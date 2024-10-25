@@ -66,7 +66,7 @@ storeController.post(
   }),
   async (req, res) => {
     const { name, userId } = req.body;
-    console.log({ reqBody: req.body });
+    console.log({ createStoreRouter: req.body });
     const store: Store = await prisma.store
       .create({
         data: {

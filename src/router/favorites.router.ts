@@ -11,32 +11,41 @@ const favoritesController = Router();
 //get store favs
 favoritesController.get("/stores/:storeId/favorites", async (req, res) => {
   const { storeId } = req.params;
-  //get items associated with the store
-  const items = await prisma.item.findMany({
-    where: {
-      storeId: +storeId,
-    },
-  });
-
-  if (items.length === 0) {
-    return res
-      .status(404)
-      .json({ error: "Item not found in the specified store" });
-  }
-
-  //get the favs from items
-  const favoriteQueries = items.map((item) => {
-    return prisma.favorite.findMany({
+  try {
+    //get items associated with the store
+    const items = await prisma.item.findMany({
       where: {
-        itemId: item.id,
+        storeId: +storeId,
       },
     });
-  });
 
-  const favortiesArray = await Promise.all(favoriteQueries);
-  const allFavorites = favortiesArray.flat();
+    // if (items.length === 0) {
+    //   return res.status(204).send();
+    // }
 
-  res.status(200).json(allFavorites);
+    //get the favs from items
+    const favoriteQueries = items.map((item) => {
+      return prisma.favorite.findMany({
+        where: {
+          itemId: item.id,
+        },
+      });
+    });
+    const favoritesArray = await Promise.all(favoriteQueries);
+
+    const allFavorites = favoritesArray.flat();
+
+    if (allFavorites.length === 0 || items.length === 0) {
+      return res.status(204).send();
+    }
+
+    res.status(200).json(allFavorites);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching favorites" });
+  }
 });
 
 //get fav by id
