@@ -11,7 +11,6 @@ const itemsController = Router();
 //gets all items for a store
 itemsController.get(
   "/stores/:storeId/items",
-  // "/users/:userId/stores/:storeId/items",
   validateRequest({
     params: z.object({
       storeId: intParseableString,
@@ -30,7 +29,7 @@ itemsController.get(
         .status(200)
         .json({ message: "No items found for this store", items: [] });
     }
-
+    console.log({ itemsRouter: "getting all of the items req" });
     res.status(200).json(items);
   }
 );
@@ -96,17 +95,14 @@ itemsController.post(
 
 itemsController.delete(
   "/items/:itemId",
-  // "/stores/:storeId/items/:itemId",
   validateRequest({
     params: z.object({
-      // storeId: intParseableString,
       itemId: intParseableString,
     }),
   }),
   async (req, res) => {
     const { itemId } = req.params;
-    //get fav by itemId and delete fav
-    //then delete item
+
     const itemFav = await prisma.favorite.findFirst({
       where: {
         itemId: +itemId,
@@ -120,6 +116,7 @@ itemsController.delete(
             id: itemFav.id,
           },
         });
+        console.log({ itemsRouter: "delete item req" });
         res.status(200).json({ message: "Favorite deleted successfully" });
       } catch (error) {
         console.error(error);
@@ -129,7 +126,8 @@ itemsController.delete(
         });
       }
     } else {
-      res.status(404).json({ error: "Favorite not found" });
+      // res.status(404).json({ error: "Favorite not found" });
+      res.status(204).send();
     }
 
     await prisma.item.delete({
