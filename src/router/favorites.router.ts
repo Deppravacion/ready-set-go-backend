@@ -9,49 +9,35 @@ import { deleteFavoriteByItemId } from "./helpers";
 const favoritesController = Router();
 
 //get store favs
-favoritesController.get(
-  "/users/:userId/stores/:storeId/favorites",
-  async (req, res) => {
-    const { userId, storeId } = req.params;
+favoritesController.get("/stores/:storeId/favorites", async (req, res) => {
+  const { storeId } = req.params;
+  //get items associated with the store
+  const items = await prisma.item.findMany({
+    where: {
+      storeId: +storeId,
+    },
+  });
 
-    //grab a user
-    const user = await prisma.user.findUnique({
-      where: {
-        id: +userId,
-      },
-    });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    //get items associated with the store
-    const items = await prisma.item.findMany({
-      where: {
-        storeId: +storeId,
-      },
-    });
-
-    if (items.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "Item not found in the specified store" });
-    }
-
-    //get the favs from items
-    const favoriteQueries = items.map((item) => {
-      return prisma.favorite.findMany({
-        where: {
-          itemId: item.id,
-        },
-      });
-    });
-
-    const favortiesArray = await Promise.all(favoriteQueries);
-    const allFavorites = favortiesArray.flat();
-
-    res.status(200).json(allFavorites);
+  if (items.length === 0) {
+    return res
+      .status(404)
+      .json({ error: "Item not found in the specified store" });
   }
-);
+
+  //get the favs from items
+  const favoriteQueries = items.map((item) => {
+    return prisma.favorite.findMany({
+      where: {
+        itemId: item.id,
+      },
+    });
+  });
+
+  const favortiesArray = await Promise.all(favoriteQueries);
+  const allFavorites = favortiesArray.flat();
+
+  res.status(200).json(allFavorites);
+});
 
 //get fav by id
 favoritesController.get(
