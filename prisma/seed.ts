@@ -27,13 +27,13 @@ const seed = async () => {
   });
 
   // Create Jon
-  const jon = await prisma.user.create({
-    data: {
-      email: "jon@jon.com",
-      name: "comrade-jon",
-      passwordHash: await encryptPassword("jonspassword"),
-    },
-  });
+  // const jon = await prisma.user.create({
+  //   data: {
+  //     email: "jon@jon.com",
+  //     name: "comrade-jon",
+  //     passwordHash: await encryptPassword("jonspassword"),
+  //   },
+  // });
   // create peter
   const peter = await prisma.user.create({
     data: {
@@ -75,7 +75,8 @@ const seed = async () => {
     data: {
       name: "Coors-Banquet",
       storeId: garageFridge.id,
-      image: "default-image.jpg",
+      image:
+        "https://ipcdn.freshop.com/resize?url=https://images.freshop.com/00087800000096/d9ad2644a5e2b80432bd418403ad2113_large.png&width=512&type=webp&quality=90",
       description: "A refreshing beer",
       quantity: 30,
       minQuantity: 8,
@@ -86,7 +87,8 @@ const seed = async () => {
     data: {
       name: "Topo Chico",
       storeId: garageFridge.id,
-      image: "default-image.jpg",
+      image:
+        "https://i5.walmartimages.com/seo/Topo-Chico-Sparkling-Mineral-Water-12-Fluid-Ounce-24-per-Case_a388976c-566f-444a-a8f5-bbf5ed71f7b8.38ee976e3e010adacc60b1c5cddd3afe.jpeg?odnHeight=640&odnWidth=640&odnBg=FFFFFF",
       description: "A refreshing mineral water",
       quantity: 16,
       minQuantity: 3,
@@ -97,7 +99,7 @@ const seed = async () => {
     data: {
       name: "Fresh Squeezed OJ",
       storeId: garageFridge.id,
-      image: "default-image.jpg",
+      image: "https://images.heb.com/is/image/HEBGrocery/001828129-1",
       description: "A refreshing pulpy juice",
       quantity: 2,
       minQuantity: 1,
@@ -108,7 +110,7 @@ const seed = async () => {
     data: {
       name: "Red Dragon 25g tungston darts",
       storeId: gameBox.id,
-      image: "default-image.jpg",
+      image: "https://i.ebayimg.com/images/g/g5sAAOSwfV5mTIeP/s-l1200.jpg",
       description: "A quality dart set",
       quantity: 1,
       minQuantity: 0,
@@ -119,16 +121,17 @@ const seed = async () => {
     data: {
       name: "HCL Liquid Acid",
       storeId: poolStorage.id,
-      image: "default-image.jpg",
+      image:
+        "https://i8.amplience.net/i/lesl/14291_01/ACID-Magic-1-Gallon?$pdpExtraLarge$&fmt=auto",
       description: "A refreshing mineral water",
       quantity: 16,
       minQuantity: 3,
     },
   });
 
-  const favoriteBeer = await prisma.favorite.create({
+  const favoriteOj = await prisma.favorite.create({
     data: {
-      itemId: coldBeer.id,
+      itemId: orangeJuice.id,
     },
   });
   const favoriteWater = await prisma.favorite.create({
