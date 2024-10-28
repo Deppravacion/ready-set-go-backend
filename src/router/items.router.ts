@@ -56,6 +56,25 @@ itemsController.get(
   }
 );
 
+//refactored get item by itemID
+itemsController.get(
+  "/items/:itemId",
+  validateRequest({
+    params: z.object({
+      itemId: intParseableString,
+    }),
+  }),
+  async (req, res) => {
+    const { itemId } = req.params;
+    const item = await prisma.item.findUnique({
+      where: {
+        id: +itemId,
+      },
+    });
+    res.status(200).json(item);
+  }
+);
+
 //create item
 
 itemsController.post(
@@ -93,6 +112,44 @@ itemsController.post(
   }
 );
 
+//update an item
+
+itemsController.patch(
+  "/items/:itemId",
+  validateRequest({
+    body: z
+      .object({
+        quantity: z.number(),
+      })
+      .partial(),
+  }),
+  async (req, res) => {
+    const { itemId } = req.params;
+    const { quantity } = req.body;
+    const item = await prisma.item.findUnique({
+      where: {
+        id: +itemId,
+      },
+    });
+    if (!item) {
+      return res.status(404).json({ message: "no item has been found" });
+    }
+    return await prisma.item
+      .update({
+        where: {
+          id: +itemId,
+        },
+        data: {
+          ...req.body,
+        },
+      })
+      .then((item) => res.status(201).json({ ...item }))
+      .catch(() =>
+        res.status(500).json({ message: "Item quantity not updated" })
+      );
+  }
+);
+
 itemsController.delete(
   "/items/:itemId",
   validateRequest({
@@ -126,7 +183,6 @@ itemsController.delete(
         });
       }
     } else {
-      // res.status(404).json({ error: "Favorite not found" });
       res.status(204).send();
     }
 

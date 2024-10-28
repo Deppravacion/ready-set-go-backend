@@ -104,18 +104,20 @@ favoritesController.delete(
 
   async (req, res) => {
     const { favoriteId } = req.params;
-    // await deleteFavoriteByItemId(+favoriteId, res)
+    console.log({ deleteFavEndPoint: favoriteId });
 
     try {
-      const deleteResult = await prisma.favorite.deleteMany({
+      const deleteResult = await prisma.favorite.delete({
         where: {
           id: +favoriteId,
         },
       });
 
-      if (deleteResult.count === 0) {
-        return res.status(404).json({ error: "Favorite not found" });
-      }
+      // if (deleteResult.count === 0) {
+      //   console.log({ deletedResults: deleteResult });
+      //   return res.status(204).send();
+      //   // return res.status(404).json({ error: "Favorite not found" });
+      // }
 
       res.status(200).json({ message: "Favorite deleted successfully" });
     } catch (error) {
