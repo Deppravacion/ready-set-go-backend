@@ -1,1 +1,1 @@
-<!-- working through creating the schema for ready set go -->
+main user: login/password: 'tyson@tyson.com / password'
