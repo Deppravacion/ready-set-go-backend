@@ -2,7 +2,6 @@ import { encryptPassword } from "../src/auth-utils";
 import { prisma } from "./db.setup";
 
 const clearDb = async () => {
-  // await prisma.dog.deleteMany();
   await prisma.favorite.deleteMany();
   console.log("deleted favorites");
   await prisma.item.deleteMany();
@@ -26,19 +25,19 @@ const seed = async () => {
     },
   });
 
-  // Create Jon
-  // const jon = await prisma.user.create({
-  //   data: {
-  //     email: "jon@jon.com",
-  //     name: "comrade-jon",
-  //     passwordHash: await encryptPassword("jonspassword"),
-  //   },
-  // });
+  //Create Andrei
+  const andrei = await prisma.user.create({
+    data: {
+      email: "andrei@andrei.com",
+      name: "Andrei",
+      passwordHash: await encryptPassword("andreispassword"),
+    },
+  });
   // create peter
   const peter = await prisma.user.create({
     data: {
       email: "peter@peter.com",
-      name: "coder-pete",
+      name: "Pete",
       passwordHash: await encryptPassword("peterspassword"),
     },
   });

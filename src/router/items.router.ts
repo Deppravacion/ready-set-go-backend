@@ -34,28 +34,6 @@ itemsController.get(
   }
 );
 
-//get an item by id
-itemsController.get(
-  "/stores/:storeId/items/:itemId",
-  validateRequest({
-    params: z.object({
-      storeId: intParseableString,
-      itemId: intParseableString,
-    }),
-  }),
-  async (req, res) => {
-    const { storeId, itemId } = req.params;
-
-    const item = await prisma.item.findUnique({
-      where: {
-        id: +itemId,
-      },
-    });
-
-    res.status(200).json(item);
-  }
-);
-
 //refactored get item by itemID
 itemsController.get(
   "/items/:itemId",
@@ -76,7 +54,6 @@ itemsController.get(
 );
 
 //create item
-
 itemsController.post(
   "/items",
   validateRequest({
@@ -113,7 +90,6 @@ itemsController.post(
 );
 
 //update an item
-
 itemsController.patch(
   "/items/:itemId",
   validateRequest({
@@ -150,6 +126,7 @@ itemsController.patch(
   }
 );
 
+//delete item
 itemsController.delete(
   "/items/:itemId",
   validateRequest({

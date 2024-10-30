@@ -4,7 +4,6 @@ import "express-async-errors";
 import { z } from "zod";
 import { prisma } from "../../prisma/db.setup";
 import { intParseableString } from "../zod/intParsableString";
-import { deleteFavoriteByItemId } from "./helpers";
 
 const favoritesController = Router();
 
@@ -12,18 +11,12 @@ const favoritesController = Router();
 favoritesController.get("/stores/:storeId/favorites", async (req, res) => {
   const { storeId } = req.params;
   try {
-    //get items associated with the store
     const items = await prisma.item.findMany({
       where: {
         storeId: +storeId,
       },
     });
 
-    // if (items.length === 0) {
-    //   return res.status(204).send();
-    // }
-
-    //get the favs from items
     const favoriteQueries = items.map((item) => {
       return prisma.favorite.findMany({
         where: {
@@ -112,12 +105,6 @@ favoritesController.delete(
           id: +favoriteId,
         },
       });
-
-      // if (deleteResult.count === 0) {
-      //   console.log({ deletedResults: deleteResult });
-      //   return res.status(204).send();
-      //   // return res.status(404).json({ error: "Favorite not found" });
-      // }
 
       res.status(200).json({ message: "Favorite deleted successfully" });
     } catch (error) {

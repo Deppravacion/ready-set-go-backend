@@ -1,22 +1,17 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import { prisma } from "../../prisma/db.setup";
 import "express-async-errors";
 import { validateRequest } from "zod-express-middleware";
 import { z } from "zod";
 import { intParseableString as intParseableString } from "../zod/intParsableString";
-import { authMiddleware, getDataFromAuthToken } from "../auth-utils";
 import { Store } from "@prisma/client";
-import {
-  deleteFavoriteByItemId,
-  deleteItemsAndFavoritesByStoreId,
-} from "./helpers";
+import { deleteItemsAndFavoritesByStoreId } from "./helpers";
 
 const storeController = Router();
 
 //get stores for user
 storeController.get(
   "/users/:userId/stores",
-  // authMiddleware,
   validateRequest({
     params: z.object({
       userId: intParseableString,
@@ -72,7 +67,6 @@ storeController.post(
         data: {
           name,
           userId: +userId,
-          // userId: parseInt(userId),
         },
       })
       .catch((e) => e.message);
@@ -128,8 +122,6 @@ storeController.patch(
   }
 );
 
-// // TODO
-// // Needs _____?
 storeController.delete(
   "/stores/:storeId",
   validateRequest({

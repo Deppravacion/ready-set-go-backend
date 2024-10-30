@@ -7,7 +7,6 @@ import bcrypt from "bcrypt";
 import {
   createTokenForUser,
   createUnsecureUserInformation,
-  encryptPassword,
 } from "../auth-utils";
 
 const authController = Router();
@@ -43,41 +42,5 @@ authController.post(
     return res.status(200).json({ token, userInformation });
   }
 );
-//working here on signup logics
-// authController.post(
-//   "/signup",
-//   validateRequest({
-//     body: z.object({
-//       name: z.string(),
-//       email: z.string().email(),
-//       password: z.string(),
-//       confirmPassword: z.string(),
-//     }),
-//   }),
-//   async (req, res) => {
-//     const { name, email, password, confirmPassword } = req.body;
-//     try {
-//       const doesUserExist = await prisma.user.findUnique({
-//         where: {
-//           email,
-//         },
-//       });
-//       if (doesUserExist) {
-//         return res.status(400).json({ message: "User already exists" });
-//       }
-//       const passwordHash = encryptPassword(password);
-
-//       const user = await prisma.user.create({
-//         data: {
-//           name,
-//           email,
-//           passwordHash: (await passwordHash).toString(),
-//         },
-//       });
-//       console.log({ user: user });
-//       return res.status(200).json({ user });
-//     } catch (error) {}
-//   }
-// );
 
 export { authController };
