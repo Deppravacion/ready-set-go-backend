@@ -24,13 +24,12 @@ itemsController.get(
         storeId: +storeId,
       },
     });
-    if (items.length === 0) {
+    if (!items.length) {
       return res
         .status(200)
         .json({ message: "No items found for this store", items: [] });
     }
-    console.log({ itemsRouter: "getting all of the items req" });
-    res.status(200).json(items);
+    return res.status(200).json(items);
   }
 );
 
@@ -101,7 +100,6 @@ itemsController.patch(
   }),
   async (req, res) => {
     const { itemId } = req.params;
-    const { quantity } = req.body;
     const item = await prisma.item.findUnique({
       where: {
         id: +itemId,
@@ -150,7 +148,6 @@ itemsController.delete(
             id: itemFav.id,
           },
         });
-        console.log({ itemsRouter: "delete item req" });
         res.status(200).json({ message: "Favorite deleted successfully" });
       } catch (error) {
         console.error(error);

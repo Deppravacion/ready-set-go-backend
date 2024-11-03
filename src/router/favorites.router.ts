@@ -28,11 +28,11 @@ favoritesController.get("/stores/:storeId/favorites", async (req, res) => {
 
     const allFavorites = favoritesArray.flat();
 
-    if (allFavorites.length === 0 || items.length === 0) {
+    if (!allFavorites.length || !items.length) {
       return res.status(204).send();
     }
 
-    res.status(200).json(allFavorites);
+    return res.status(200).json(allFavorites);
   } catch (error) {
     console.error(error);
     res

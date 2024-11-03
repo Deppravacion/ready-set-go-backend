@@ -25,7 +25,7 @@ storeController.get(
         userId: +userId,
       },
     });
-    res.json(stores);
+    return res.json(stores);
   }
 );
 
@@ -46,7 +46,7 @@ storeController.get(
         id: +storeId,
       },
     });
-    res.json(stores);
+    return res.json(stores);
   }
 );
 
@@ -101,8 +101,9 @@ storeController.patch(
           id: storeId,
         },
       })
-      .then(() => true)
-      .catch(() => false);
+      // .then(() => true)
+      // .catch(() => false);
+      .catch(() => null);
 
     if (!doesStoreExist) {
       return res.status(404).json({ message: "Store not found" });
@@ -131,7 +132,6 @@ storeController.delete(
   }),
   async (req, res) => {
     const { storeId } = req.params;
-    console.log({ storeId: req.params.storeId });
 
     try {
       await deleteItemsAndFavoritesByStoreId(+storeId, res);

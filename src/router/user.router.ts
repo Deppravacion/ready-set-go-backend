@@ -20,7 +20,7 @@ userController.post(
     }),
   }),
   async (req, res) => {
-    const { name, email, password, confirmPassword } = req.body;
+    const { name, email, password } = req.body;
     try {
       const doesUserExist = await prisma.user.findUnique({
         where: {
@@ -163,16 +163,7 @@ userController.get(
     }),
   }),
   async (req, res) => {
-    // console.log(req.params);
     const { userId } = req.params;
-    // const user = await prisma.user.findUnique({
-    //   where: {
-    //     id: +userId,
-    //   },
-    // });
-    // if (!user) {
-    //   return res.status(404).json({ error: "User not found" });
-    // }
 
     const stores = await prisma.store.findMany({
       where: {
