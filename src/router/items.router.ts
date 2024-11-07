@@ -3,7 +3,7 @@ import { validateRequest } from "zod-express-middleware";
 import "express-async-errors";
 import { z } from "zod";
 import { prisma } from "../../prisma/db.setup";
-import { intParseableString } from "../zod/intParsableString";
+import { intParseableString } from "../utils/intParsableString";
 import { Item } from "@prisma/client";
 
 const itemsController = Router();
@@ -84,7 +84,8 @@ itemsController.post(
     if (!item) {
       return res.status(500).json({ message: "No Item Created" });
     }
-    return res.json(item).json({ message: "Item Created" });
+
+    return res.json({ item, message: " item created" });
   }
 );
 

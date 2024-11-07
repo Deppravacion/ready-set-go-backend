@@ -3,9 +3,9 @@ import { prisma } from "../../prisma/db.setup";
 import "express-async-errors";
 import { validateRequest } from "zod-express-middleware";
 import { z } from "zod";
-import { intParseableString as intParseableString } from "../zod/intParsableString";
+import { intParseableString as intParseableString } from "../utils/intParsableString";
 import { Store } from "@prisma/client";
-import { deleteItemsAndFavoritesByStoreId } from "./helpers";
+import { deleteItemsAndFavoritesByStoreId } from "../utils/helpers";
 
 const storeController = Router();
 
@@ -101,8 +101,6 @@ storeController.patch(
           id: storeId,
         },
       })
-      // .then(() => true)
-      // .catch(() => false);
       .catch(() => null);
 
     if (!doesStoreExist) {

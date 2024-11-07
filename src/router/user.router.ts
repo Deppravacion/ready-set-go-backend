@@ -4,7 +4,7 @@ import "express-async-errors";
 import { z } from "zod";
 import { prisma } from "../../prisma/db.setup";
 import { encryptPassword } from "../auth-utils";
-import { intParseableString } from "../zod/intParsableString";
+import { intParseableString } from "../utils/intParsableString";
 
 const userController = Router();
 
