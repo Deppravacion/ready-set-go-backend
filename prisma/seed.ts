@@ -51,6 +51,7 @@ const seed = async () => {
       },
     },
   });
+
   const gameBox = await prisma.store.create({
     data: {
       name: "Drinking Games Storage",
