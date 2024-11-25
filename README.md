@@ -30,3 +30,5 @@ Use the following credentials to log in with an existing user:
 
 -log-in: "tyson@tyson.com"
 -Password: "password"
+
+ENJOY!
